@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -28,8 +29,18 @@ public class GuestBookController {
 
     private static final Logger logger = LogManager.getLogger();
 
-    @GetMapping("/read")
-    public void read(Long gno, Model model) {
+
+    @PostMapping("/remove")
+    public String remove(Long gno, RedirectAttributes redirectAttributes) {
+        log.debug("[Post] remove" + gno);
+        service.remove(gno);
+        redirectAttributes.addFlashAttribute("msg", gno);
+        return "redirect:/guestbook/list";
+    }
+
+    @GetMapping({"/read", "/modify"})
+    public void read(Long gno, Model model, @ModelAttribute("requestDTO") PageRequestDTO requestDTO) {
+
         log.debug("read request");
         GuestBookDTO dto = service.read(gno);
         model.addAttribute("dto", dto);
@@ -54,6 +65,7 @@ public class GuestBookController {
 
         PageResultDTO<GuestBookDTO, GuestBook> list = service.getList(pageRequestDTO);
         model.addAttribute("result", list);
+        model.addAttribute("requestDTO", pageRequestDTO);
         return "/guestbook/list";
     }
 

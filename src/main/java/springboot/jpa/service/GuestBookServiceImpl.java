@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import springboot.jpa.dto.GuestBookDTO;
 import springboot.jpa.dto.PageRequestDTO;
@@ -47,12 +48,18 @@ public class GuestBookServiceImpl implements GuestBookService{
 
     @Override
     public void remove(Long gno) {
-
+        guestbookRepository.deleteById(gno);
     }
 
     @Override
     public void modify(GuestBookDTO dto) {
-
+        Optional<GuestBook> result = guestbookRepository.findById(dto.getGno());
+        if (result.isPresent()) {
+            GuestBook entity = result.get();
+            entity.changeTitle(dto.getTitle());
+            entity.changeContent(dto.getContent());
+            guestbookRepository.save(entity);
+        }
     }
 
     @Override

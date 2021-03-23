@@ -21,7 +21,7 @@
             <tbody>
                 <tr th:each="dto : ${result.dtoList}">
                     <th scope="row">
-                        <a th:href="@{/guestbook/read(gno=${dto.gno})}" th:text="${dto.gno}">
+                        <a th:href="@{/guestbook/read(gno=${dto.gno} , page=${requestDTO.page})}" th:text="${dto.gno}">
                         </a>
                     </th>
                     <td th:text="${dto.title}"></td>
