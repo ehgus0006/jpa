@@ -1,5 +1,7 @@
 package springboot.jpa.service;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,7 @@ import springboot.jpa.dto.GuestBookDTO;
 import springboot.jpa.dto.PageRequestDTO;
 import springboot.jpa.dto.PageResultDTO;
 import springboot.jpa.entity.GuestBook;
+import springboot.jpa.entity.QGuestBook;
 import springboot.jpa.repository.GuestbookRepository;
 
 import java.util.Optional;
@@ -22,6 +25,29 @@ public class GuestBookServiceImpl implements GuestBookService{
 
     @Autowired
     private GuestbookRepository guestbookRepository;
+
+    private BooleanBuilder getSearch(PageRequestDTO requestDTO) {
+        String type = requestDTO.getType();
+        String keyword = requestDTO.getKeyword();
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        QGuestBook qGuestBook = QGuestBook.guestBook;
+
+        if(type == null){
+            return booleanBuilder;
+        }
+        if (type.contains("t")) {
+            //BooleanExpression exp = qGuestBook.title.contains(keyword); // title like '%....%;
+            booleanBuilder.or(qGuestBook.title.contains(keyword));
+        }
+        if (type.contains("c")) {
+            booleanBuilder.or(qGuestBook.content.contains(keyword));
+        }
+        if (type.contains("w")) {
+            booleanBuilder.or(qGuestBook.writer.contains(keyword));
+        }
+
+        return booleanBuilder;
+    }
 
     @Override
     public Long register(GuestBookDTO dto) {
@@ -38,10 +64,11 @@ public class GuestBookServiceImpl implements GuestBookService{
     public PageResultDTO<GuestBookDTO, GuestBook> getList(PageRequestDTO requestDTO) {
         Pageable pageable = requestDTO.getPageable(Sort.by("gno").descending());
 
-        Page<GuestBook> result = guestbookRepository.findAll(pageable);
+        BooleanBuilder booleanBuilder = getSearch(requestDTO);
+
+        Page<GuestBook> result = guestbookRepository.findAll(booleanBuilder,pageable);
 
         Function<GuestBook, GuestBookDTO> fn = (entity -> convertEntity2DTO(entity));
-
 
         return new PageResultDTO<GuestBookDTO, GuestBook>(result,fn);
     }

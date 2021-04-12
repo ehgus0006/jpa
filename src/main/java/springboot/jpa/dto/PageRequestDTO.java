@@ -15,6 +15,8 @@ public class PageRequestDTO {
 
     private int page;
     private int size;
+    private String type;
+    private String keyword;
 
     public Pageable getPageable(Sort gno){
         return PageRequest.of(page - 1, size, Sort.by("gno").descending());

@@ -30,8 +30,8 @@ public class GuestBook extends BaseEntity{
         this.content = content;
         this.writer = writer;
     }
-    public void changeTitle(String Title){
-        this.content = Title;
+    public void changeTitle(String title){
+        this.title = title;
     }
 
     public void changeContent(String content){

@@ -40,14 +40,27 @@ public class GuestBookController {
 
     @GetMapping({"/read", "/modify"})
     public void read(Long gno, Model model, @ModelAttribute("requestDTO") PageRequestDTO requestDTO) {
-
         log.debug("read request");
         GuestBookDTO dto = service.read(gno);
         model.addAttribute("dto", dto);
     }
 
+    @PostMapping("/modify")
+    public String modify(GuestBookDTO dto,
+                         @ModelAttribute("requestDTO") PageRequestDTO requestDTO,
+                         RedirectAttributes redirectAttributes) {
+        log.debug("[Post] modify ..................... :" + dto);
+        service.modify(dto);
+        redirectAttributes.addAttribute("page", requestDTO.getPage());
+        redirectAttributes.addAttribute("type", requestDTO.getType());
+        redirectAttributes.addAttribute("keyword", requestDTO.getKeyword());
+        redirectAttributes.addAttribute("gno", dto.getGno());
+        return "redirect:/guestbook/read";
+    }
+
     @GetMapping("/register")
     public void register() {
+
         log.debug("register form request");
     }
 
@@ -59,7 +72,6 @@ public class GuestBookController {
         redirectAttributes.addFlashAttribute("msg", gno);
         return "redirect:/guestbook/list";
     }
-
     @GetMapping("/list")
     public String list(PageRequestDTO pageRequestDTO, Model model) {
 
